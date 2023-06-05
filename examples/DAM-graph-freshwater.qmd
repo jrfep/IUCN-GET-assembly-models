@@ -29,9 +29,10 @@ input_csv_file <- "~/Downloads/dam_components_freshwater_results.csv"
 ```
 
 ```{r}
-#| caption: "Or use `here` to find the path to the file relative to the project folder"
-here::i_am("examples/DAM-graph-freshwater.Rmd")
-input_csv_file <- 
+#| code-fold: true
+#| code-summary: "Or use `here` to find the path to the file relative to the project folder"
+here::i_am("examples/DAM-graph-freshwater.qmd")
+input_csv_file <-
     here::here("sandbox", "dam_components_freshwater_results.csv")
 ```
 
@@ -90,6 +91,8 @@ V(g)$size[V(g)$class %in% "EFG"] <- 6
 This is the plot of all EFGs and variables, I omitted the variable name for now. There are lots of variables that are used only once (blue circles in the periphery of the graph):
 
 ```{r}
+#| fig-width: 10
+#| fig-height: 10
 l <- layout_with_kk(g)
 #l <- layout_with_fr(g)
 plot(g, layout=l,vertex.label.cex=.5)
@@ -103,6 +106,8 @@ We can use the igraph functions to create a subgraph based on a selection of com
 For example, consider only variables connected to many functional groups, I will use a degree of 10 as a threshold, then I restore the names for the nodes and increase the node size:
 
 ```{r}
+#| fig-width: 10
+#| fig-height: 10
 sg <- subgraph(g, which(degree(g) > 10))
 V(sg)$label <- V(sg)$name
 V(sg)$size <- 12
@@ -113,6 +118,8 @@ plot(sg)
 Here another example where I focus on just a selection of groups. Notice I use here the subgraph function twice, first to select the selected groups and  all variables and then to delete the disconnected nodes: 
 
 ```{r}
+#| fig-width: 10
+#| fig-height: 10
 f1 <- c("F1.1","F1.2","F1.3","F1.4", "F1.5", "TF1.3")
 sg <- subgraph(g, V(g)$name %in% f1 | V(g)$class  %in% "vars")
 sg <- subgraph(sg,which(degree(sg) > 1))
@@ -136,3 +143,9 @@ We can now explore this filtered table:
 head(filtered_table)
 ```
 
+# Session Info
+
+```{r}
+#| fold-code: true
+sessionInfo()
+```

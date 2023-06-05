@@ -11,7 +11,7 @@ This document provides an example of how to use and visualise the table summaris
 
 The IUCN Global Ecosytem Typology can be explored at: [https://global-ecosystems.org](https://global-ecosystems.org)
 
-The data comes from an internal database and is not yet publicly available. 
+The data comes from an internal database and is not yet publicly available. The source code to generate this document is available at the GitHub repo [jrfep/IUCN-GET-assembly-models](https://github.com/jrfep/IUCN-GET-assembly-models) and linked to OSF project: [osf.io/ptkdn](https://osf.io/ptkdn/)
 
 # Set up
 

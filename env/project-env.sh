@@ -6,6 +6,9 @@ case $MIHOST in
 terra)
   export SCRIPTDIR=$HOME/$PROJECTDIR/$PROJECTNAME
   ;;
+Auyantepui)
+  export SCRIPTDIR=$HOME/$PROJECTDIR/$PROJECTNAME
+  ;;
 roraima)
   export SCRIPTDIR=$HOME/$PROJECTDIR/$PROJECTNAME
   ;;

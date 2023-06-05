@@ -8,3 +8,4 @@ sandbox/
 *.log
 *.tex
 *html
+.DS_Store

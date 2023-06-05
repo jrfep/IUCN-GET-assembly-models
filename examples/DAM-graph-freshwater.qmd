@@ -1,16 +1,21 @@
 ---
-title: "Example visualisation of diagrammatic assembly models from the IUCN Global Ecosystem Typology"
+title: "IUCN-GET: Diagrammatic assembly models"
+subtitle: "Example visualisation for freshwater biomes"
 author: JR Ferrer-Paris
-format:
-  pdf:
-    toc: false
-    number-sections: false
-    colorlinks: true
+format: 
+    nrennie/PrettyPDF-pdf:
+        keep-tex: false
 ---
+
+This document provides an example of how to use and visualise the table summarising diagrammatic assembly model for several ecosystem functional groups (EFG) in R. 
+
+The IUCN Global Ecosytem Typology can be explored at: [https://global-ecosystems.org](https://global-ecosystems.org)
+
+The data comes from an internal database and is not yet publicly available. 
 
 # Set up
 
-Load libraries
+ Load libraries
 
 ```{r}
 library(readr)
@@ -22,32 +27,61 @@ library(igraph)
 
 First locate the downloaded csv file.
 
-Either using an absolute path
+Either using an absolute path:
 ```{r}
 #| eval: false
-input_csv_file <- "~/Downloads/dam_components_freshwater_results.csv"
+input_csv_file <- 
+    "~/Downloads/dam_components_freshwater_results.csv"
 ```
 
+Or use `here` to find the path to the file relative to the project folder:
+
 ```{r}
-#| code-fold: true
-#| code-summary: "Or use `here` to find the path to the file relative to the project folder"
 here::i_am("examples/DAM-graph-freshwater.qmd")
 input_csv_file <-
     here::here("sandbox", "dam_components_freshwater_results.csv")
 ```
 
- I use the `read_csv` function from the `readr` package:  
+Now, I use the `read_csv` function from the `readr` package:  
 
 ```{r}
 dam_data <- read_csv(input_csv_file)
 ```
+
+# Explore the table  
 
 We can take a look at the data:
 ```{r}
 glimpse(dam_data)
 ```
 
+The column `code` refers to the code of the functional group (EFG), the `shortname` column includes the code and abbreviated name. Each row has a unique `component_code` used in the database to organise the data. 
+
+Components of the model are grouped in the following `component_classes`:
+
+```{r}
+dam_data %>% select(component_class) %>% table
+```
+
+The table includes the original name of the component in the model (`component_name`) and three columns that try to generalise the description of the component to make it more comparable between functional groups. 
+
+For example we can explore all components that have a `variable` called `adjacent ecosystems`:
+
+```{r}
+dam_data %>% 
+    filter(variable %in% "adjacent ecosystems") %>% 
+    select(shortname,
+        component_name, 
+        variable, 
+        characteristic, 
+        value) %>%
+    knitr::kable()
+
+```
+
 # Create a graph
+
+The table contains more than thousand rows, but we can gain some insight from visualising the relationships between functional groups and variables.
 
 I use `igraph` to create a graph with all the data from the table:
 
@@ -58,7 +92,9 @@ I use `igraph` to create a graph with all the data from the table:
 ```{r}
 nodes <- dam_data %>% 
     transmute(id=code, name=code, class="EFG") %>% 
-    bind_rows(dam_data %>% transmute(id=variable, name=variable, class="vars")) %>%
+    bind_rows(
+        dam_data %>% 
+            transmute(id=variable, name=variable, class="vars")) %>%
     unique
 
 links <- dam_data %>% 
@@ -91,8 +127,8 @@ V(g)$size[V(g)$class %in% "EFG"] <- 6
 This is the plot of all EFGs and variables, I omitted the variable name for now. There are lots of variables that are used only once (blue circles in the periphery of the graph):
 
 ```{r}
-#| fig-width: 10
-#| fig-height: 10
+#| fig-width: 8
+#| fig-height: 8
 l <- layout_with_kk(g)
 #l <- layout_with_fr(g)
 plot(g, layout=l,vertex.label.cex=.5)
@@ -106,8 +142,8 @@ We can use the igraph functions to create a subgraph based on a selection of com
 For example, consider only variables connected to many functional groups, I will use a degree of 10 as a threshold, then I restore the names for the nodes and increase the node size:
 
 ```{r}
-#| fig-width: 10
-#| fig-height: 10
+#| fig-width: 8
+#| fig-height: 8
 sg <- subgraph(g, which(degree(g) > 10))
 V(sg)$label <- V(sg)$name
 V(sg)$size <- 12
@@ -118,8 +154,8 @@ plot(sg)
 Here another example where I focus on just a selection of groups. Notice I use here the subgraph function twice, first to select the selected groups and  all variables and then to delete the disconnected nodes: 
 
 ```{r}
-#| fig-width: 10
-#| fig-height: 10
+#| fig-width: 8
+#| fig-height: 8
 f1 <- c("F1.1","F1.2","F1.3","F1.4", "F1.5", "TF1.3")
 sg <- subgraph(g, V(g)$name %in% f1 | V(g)$class  %in% "vars")
 sg <- subgraph(sg,which(degree(sg) > 1))
@@ -129,21 +165,31 @@ V(sg)$size <- 12
 plot(sg)
 ```
 
-Now we can go back to the table with all the information and read the original names used for each component:
+# Back to the table
+
+Once we have filtered our graph to keep the nodes of interest, we can go back to the table and explore the information related to the selected nodes.
+
+We use filter to select the nodes included in the subgraph, and then select the columns with the extra information we want to read:
 
 ```{r}
 filtered_table <- dam_data %>% 
-    filter(code %in% V(sg)$name, variable %in% V(sg)$name) %>% 
+    filter(
+        code %in% V(sg)$name, 
+        variable %in% V(sg)$name
+        ) %>% 
     select(code,component_class,component_name)
 ```
 
 We can now explore this filtered table:
 
 ```{r}
-head(filtered_table)
+head(filtered_table) %>%
+    knitr::kable()
 ```
 
 # Session Info
+
+Details of the R session below:
 
 ```{r}
 #| fold-code: true

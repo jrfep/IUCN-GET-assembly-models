@@ -10,7 +10,7 @@ format:
 
 # Set up
 
- Load libraries
+Load libraries
 
 ```{r}
 library(readr)
